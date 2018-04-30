@@ -20,7 +20,11 @@ var listFeedsCmd = &cobra.Command{
 		}
 
 		for _, feed := range feeds {
-			fmt.Printf("%d. %s\n", feed.ID, feed.URL)
+			if feed.SyncedAt != nil {
+				fmt.Printf("%d. %s (Synced: %s)\n", feed.ID, feed.URL, feed.SyncedAt.Format("2006-01-02 15:04:05"))
+			} else {
+				fmt.Printf("%d. %s\n", feed.ID, feed.URL)
+			}
 		}
 	},
 }

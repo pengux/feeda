@@ -100,6 +100,12 @@ sync`,
 		}
 
 		wg.Wait()
+
+		err = sqlite.SetFeedsSyncedAtNow(db, ids...)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 	},
 }
 
