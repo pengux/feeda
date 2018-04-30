@@ -30,7 +30,7 @@ sync 1 3
 # Sync all feeds
 sync`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var ids []int64
+		var ids, syncedAtIds []int64
 
 		for _, arg := range args {
 			id, err := strconv.ParseInt(arg, 10, 64)
@@ -52,6 +52,7 @@ sync`,
 		var wg sync.WaitGroup
 		for _, feed := range feeds {
 			wg.Add(1)
+			syncedAtIds = append(syncedAtIds, feed.ID)
 
 			go func(feed sqlite.Feed) {
 				resp, err := c.Get(feed.URL)
@@ -101,7 +102,7 @@ sync`,
 
 		wg.Wait()
 
-		err = sqlite.SetFeedsSyncedAtNow(db, ids...)
+		err = sqlite.SetFeedsSyncedAtNow(db, syncedAtIds...)
 		if err != nil {
 			log.Fatal(err)
 		}
