@@ -30,7 +30,7 @@ Usual work flow is:
 feeda add [URL to feed]
 
 # List feeds
-feeda list-feeds
+feeda listFeeds
 
 # Sync feeds
 feeda sync

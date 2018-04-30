@@ -19,7 +19,7 @@ Usual work flow is:
 feeda add [URL to feed]
 
 # List feeds
-feeda list-feeds
+feeda listFeeds
 
 # Sync feeds
 feeda sync
@@ -43,6 +43,7 @@ Available Commands:
   deleteFeed  Delete feeds
   help        Help about any command
   list        List items from feeds
+  listFeeds   List all feeds
   sync        Download latest items of one or multiple feeds
 
 Flags:
