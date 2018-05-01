@@ -72,7 +72,12 @@ sync`,
 				for _, item := range rss.Items {
 					pubDate, err := time.Parse(time.RFC1123Z, item.PubDate)
 					if err != nil {
-						log.Fatalf("could not parse PubDate for URL %s: %v", feed.URL, err)
+						// Try to parse as "Mon, 2 Jan 2006 15:04:05 -0700" (without leading zero on the day of month)
+						pubDate, err = time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", item.PubDate)
+						if err != nil {
+							log.Fatalf("could not parse PubDate for URL %s: %v", feed.URL, err)
+						}
+
 					}
 
 					if strings.TrimSpace(item.GUID) == "" {
