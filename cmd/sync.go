@@ -94,9 +94,13 @@ sync`,
 					})
 				}
 
-				inserted, err := sqlite.CreateIgnoreItems(db, items...)
-				if err != nil {
-					log.Fatal(err)
+				var inserted int64
+				if len(items) > 0 {
+					inserted, err = sqlite.CreateIgnoreItems(db, items...)
+					if err != nil {
+						log.Fatal(err)
+					}
+
 				}
 
 				fmt.Printf("%d. %d items added\n", feed.ID, inserted)
