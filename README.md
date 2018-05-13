@@ -1,5 +1,5 @@
 # feeda
-Feeds (RSS) aggregator as a CLI tool.
+Feeds (RSS2/Atom) aggregator as a CLI tool.
 
 [![Build Status](https://travis-ci.org/pengux/feeda.svg?branch=master)](https://travis-ci.org/pengux/feeda)
 
