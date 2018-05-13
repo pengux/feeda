@@ -50,14 +50,17 @@ func init() {
 func TestCRUD(t *testing.T) {
 	start := time.Now()
 
+	feed1 := sqlite.Feed{URL: testFeedURL, Type: sqlite.FeedTypeRSS}
+	feed2 := sqlite.Feed{URL: testFeedURL2, Type: sqlite.FeedTypeAtom}
+
 	// Add feed
-	err = sqlite.CreateIgnoreFeeds(db, testFeedURL)
+	err = sqlite.CreateIgnoreFeeds(db, feed1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Add feed 2 and should ignore feed 1
-	err = sqlite.CreateIgnoreFeeds(db, testFeedURL, testFeedURL2)
+	err = sqlite.CreateIgnoreFeeds(db, feed1, feed2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,6 +86,12 @@ func TestCRUD(t *testing.T) {
 	}
 	if feeds[1].URL != testFeedURL2 {
 		t.Fatalf("expecting url of feed to be %s, got %s", testFeedURL2, feeds[1].URL)
+	}
+	if feeds[0].Type != sqlite.FeedTypeRSS {
+		t.Fatalf("expecting type of feed to be RSS, got %s", feeds[0].Type)
+	}
+	if feeds[1].Type != sqlite.FeedTypeAtom {
+		t.Fatalf("expecting url of feed to be Atom, got %s", feeds[1].Type)
 	}
 	if !feeds[0].CreatedAt.After(start.Add(-1 * time.Minute)) {
 		t.Fatalf("expected created_at to be after %s, got %s", start, feeds[0].CreatedAt)

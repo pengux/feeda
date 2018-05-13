@@ -8,6 +8,7 @@ func EnsureTables(db cruderExecer) error {
 		fmt.Sprintf(`CREATE TABLE IF NOT EXISTS "%s" (
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"url" TEXT NOT NULL UNIQUE,
+			"type" TEXT NOT NULL,
 			"created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			"synced_at" TIMESTAMP
 		);`, feedsTable),

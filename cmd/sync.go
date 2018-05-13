@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -46,7 +47,7 @@ sync`,
 			log.Fatal(err)
 		}
 
-		var c = &http.Client{
+		c := &http.Client{
 			Timeout: 10 * time.Second,
 		}
 		var wg sync.WaitGroup
@@ -55,43 +56,29 @@ sync`,
 			syncedAtIds = append(syncedAtIds, feed.ID)
 
 			go func(feed sqlite.Feed) {
-				resp, err := c.Get(feed.URL)
+				req, err := http.NewRequest(http.MethodGet, feed.URL, nil)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				req.Header.Set("User-Agent", userAgent)
+				resp, err := c.Do(req)
 				if err != nil {
 					log.Fatalf("could not fetch URL %s: %v", feed.URL, err)
 				}
 				defer resp.Body.Close()
 
-				var rss channel
-				decoded := xml.NewDecoder(resp.Body)
-				err = decoded.Decode(&rss)
-				if err != nil {
-					log.Fatalf("could not read data for URL %s: %v", feed.URL, err)
-				}
-
 				var items []sqlite.Item
-				for _, item := range rss.Items {
-					pubDate, err := time.Parse(time.RFC1123Z, item.PubDate)
+				if feed.Type == sqlite.FeedTypeRSS {
+					items, err = createItemsFromRSS(resp.Body, feed)
 					if err != nil {
-						// Try to parse as "Mon, 2 Jan 2006 15:04:05 -0700" (without leading zero on the day of month)
-						pubDate, err = time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", item.PubDate)
-						if err != nil {
-							log.Fatalf("could not parse PubDate for URL %s: %v", feed.URL, err)
-						}
-
+						log.Fatal(err)
 					}
-
-					if strings.TrimSpace(item.GUID) == "" {
-						item.GUID = item.Link
+				} else if feed.Type == sqlite.FeedTypeAtom {
+					items, err = createItemsFromAtom(resp.Body, feed)
+					if err != nil {
+						log.Fatal(err)
 					}
-
-					items = append(items, sqlite.Item{
-						FeedID:      feed.ID,
-						GUID:        item.GUID,
-						URL:         item.Link,
-						Title:       item.Title,
-						Desc:        item.Description,
-						PublishedAt: pubDate,
-					})
 				}
 
 				var inserted int64
@@ -121,4 +108,82 @@ sync`,
 
 func init() {
 	RootCmd.AddCommand(syncCmd)
+}
+
+func createItemsFromRSS(body io.Reader, feed sqlite.Feed) ([]sqlite.Item, error) {
+	var err error
+	var content rss2
+	var items []sqlite.Item
+
+	decoded := xml.NewDecoder(body)
+	err = decoded.Decode(&content)
+	if err != nil {
+		return items, fmt.Errorf("could not read data for URL %s: %s", feed.URL, err)
+	}
+
+	for _, item := range content.Items {
+		pubDate, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			// Try to parse as "Mon, 2 Jan 2006 15:04:05 -0700" (without leading zero on the day of month)
+			pubDate, err = time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", item.PubDate)
+			if err != nil {
+				return items, fmt.Errorf("could not parse PubDate for URL %s: %s", feed.URL, err)
+			}
+
+		}
+
+		if strings.TrimSpace(item.GUID) == "" {
+			item.GUID = item.Link
+		}
+
+		items = append(items, sqlite.Item{
+			FeedID:      feed.ID,
+			GUID:        item.GUID,
+			URL:         item.Link,
+			Title:       item.Title,
+			Desc:        item.Description,
+			PublishedAt: pubDate,
+		})
+	}
+
+	return items, nil
+}
+
+func createItemsFromAtom(body io.Reader, feed sqlite.Feed) ([]sqlite.Item, error) {
+	var err error
+	var content atom
+	var items []sqlite.Item
+
+	decoded := xml.NewDecoder(body)
+	err = decoded.Decode(&content)
+	if err != nil {
+		return items, fmt.Errorf("could not read data for URL %s: %s", feed.URL, err)
+	}
+
+	for _, item := range content.Items {
+		pubDate, err := time.Parse(time.RFC3339, item.Updated)
+		if err != nil {
+			return items, fmt.Errorf("could not parse Updated for URL %s: %s", feed.URL, err)
+		}
+
+		if strings.TrimSpace(item.ID) == "" {
+			item.ID = item.Link
+		}
+
+		desc := strings.TrimSpace(item.Content)
+		if desc == "" {
+			desc = strings.TrimSpace(item.Summary)
+		}
+
+		items = append(items, sqlite.Item{
+			FeedID:      feed.ID,
+			GUID:        item.ID,
+			URL:         item.Link,
+			Title:       item.Title,
+			Desc:        desc,
+			PublishedAt: pubDate,
+		})
+	}
+
+	return items, nil
 }

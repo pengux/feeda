@@ -14,6 +14,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	userAgent = "Feeda_feed_aggregator/1.0"
+)
+
 var (
 	dbPath = "~/.feeda/db.sqlite"
 	db     *sql.DB

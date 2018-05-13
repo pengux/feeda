@@ -11,12 +11,20 @@ const (
 	feedsTable = "feeds"
 )
 
+// Types for feeds
+const (
+	FeedTypeRSS  feedType = "RSS"
+	FeedTypeAtom feedType = "Atom"
+)
+
 type (
+	feedType string
 
 	// Feed contains the URL to the RSS/Atom feed
 	Feed struct {
 		ID        int64
 		URL       string
+		Type      feedType
 		CreatedAt time.Time
 		SyncedAt  *time.Time
 	}
@@ -31,21 +39,21 @@ type (
 )
 
 // CreateIgnoreFeeds persists feeds to DB and if it already exists then skip it
-func CreateIgnoreFeeds(db cruderExecer, urls ...string) error {
+func CreateIgnoreFeeds(db cruderExecer, feeds ...Feed) error {
 	var values []string
 	var params []interface{}
 
-	if len(urls) == 0 {
-		return errors.New("missing urls to create")
+	if len(feeds) == 0 {
+		return errors.New("missing feeds to create")
 	}
 
-	for _, url := range urls {
-		values = append(values, "(?)")
-		params = append(params, url)
+	for _, feed := range feeds {
+		values = append(values, "(?, ?)")
+		params = append(params, feed.URL, feed.Type)
 	}
 
 	_, err := db.Exec(
-		fmt.Sprintf(`INSERT OR IGNORE INTO "%s" (url) VALUES %s`, feedsTable, strings.Join(values, ",")),
+		fmt.Sprintf(`INSERT OR IGNORE INTO "%s" (url, type) VALUES %s`, feedsTable, strings.Join(values, ",")),
 		params...,
 	)
 
@@ -69,7 +77,7 @@ func ListFeeds(db cruderQueryer, ids ...int64) ([]*Feed, error) {
 	}
 
 	rows, err := db.Query(
-		fmt.Sprintf(`SELECT * FROM "%s"%s ORDER BY id`, feedsTable, whereSQL),
+		fmt.Sprintf(`SELECT id, url, type, created_at, synced_at FROM "%s"%s ORDER BY id`, feedsTable, whereSQL),
 		params...,
 	)
 	if err != nil {
@@ -78,7 +86,7 @@ func ListFeeds(db cruderQueryer, ids ...int64) ([]*Feed, error) {
 	defer rows.Close()
 	for rows.Next() {
 		f := &Feed{}
-		err = rows.Scan(&f.ID, &f.URL, &f.CreatedAt, &f.SyncedAt)
+		err = rows.Scan(&f.ID, &f.URL, &f.Type, &f.CreatedAt, &f.SyncedAt)
 		if err != nil {
 			return feeds, err
 		}
