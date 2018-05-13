@@ -63,8 +63,11 @@ var addCmd = &cobra.Command{
 				}
 
 				feeds = append(feeds, feed)
+				wg.Done()
 			}(arg)
 		}
+
+		wg.Wait()
 
 		err = sqlite.CreateIgnoreFeeds(db, feeds...)
 		if err != nil {

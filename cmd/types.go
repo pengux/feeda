@@ -21,12 +21,16 @@ type (
 		Items   []atomItem `xml:"entry"`
 	}
 
+	atomLink struct {
+		Href string `xml:"href,attr"`
+	}
+
 	atomItem struct {
-		Title   string `xml:"title"`
-		Link    string `xml:"link"`
-		ID      string `xml:"id"`
-		Content string `xml:"content"`
-		Summary string `xml:"summary"`
-		Updated string `xml:"updated"`
+		Title   string   `xml:"title"`
+		Link    atomLink `xml:"link"`
+		ID      string   `xml:"id"`
+		Content string   `xml:"content"`
+		Summary string   `xml:"summary"`
+		Updated string   `xml:"updated"`
 	}
 )

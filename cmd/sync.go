@@ -167,7 +167,7 @@ func createItemsFromAtom(body io.Reader, feed sqlite.Feed) ([]sqlite.Item, error
 		}
 
 		if strings.TrimSpace(item.ID) == "" {
-			item.ID = item.Link
+			item.ID = item.Link.Href
 		}
 
 		desc := strings.TrimSpace(item.Content)
@@ -178,7 +178,7 @@ func createItemsFromAtom(body io.Reader, feed sqlite.Feed) ([]sqlite.Item, error
 		items = append(items, sqlite.Item{
 			FeedID:      feed.ID,
 			GUID:        item.ID,
-			URL:         item.Link,
+			URL:         item.Link.Href,
 			Title:       item.Title,
 			Desc:        desc,
 			PublishedAt: pubDate,
