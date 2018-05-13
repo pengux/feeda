@@ -9,4 +9,7 @@ type (
 	cruderQueryer interface {
 		Query(string, ...interface{}) (*sql.Rows, error)
 	}
+	cruderQueryRower interface {
+		QueryRow(string, ...interface{}) *sql.Row
+	}
 )

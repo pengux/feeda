@@ -34,6 +34,13 @@ func EnsureTables(db cruderExecer) error {
 		return err
 	}
 
+	_, err = db.Exec(
+		fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "idx_item_read_at" ON "%s" ("read_at")`, itemsTable),
+	)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`PRAGMA foreign_keys = ON`)
 
 	return err

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/pengux/feeda/sqlite"
 	"github.com/spf13/cobra"
@@ -20,11 +21,25 @@ var listFeedsCmd = &cobra.Command{
 		}
 
 		for _, feed := range feeds {
+			var attrs []string
+
 			if feed.SyncedAt != nil {
-				fmt.Printf("%d. %s (Synced: %s)\n", feed.ID, feed.URL, feed.SyncedAt.Format("2006-01-02 15:04:05"))
-			} else {
-				fmt.Printf("%d. %s\n", feed.ID, feed.URL)
+				attrs = append(attrs, fmt.Sprintf("Synced: %s", feed.SyncedAt.Format("2006-01-02 15:04:05")))
 			}
+
+			total, err := sqlite.CountTotalByFeed(db, feed.ID)
+			if err != nil {
+				log.Fatal(err)
+			}
+			attrs = append(attrs, fmt.Sprintf("Total: %d", total))
+
+			unread, err := sqlite.CountUnreadByFeed(db, feed.ID)
+			if err != nil {
+				log.Fatal(err)
+			}
+			attrs = append(attrs, fmt.Sprintf("Unread: %d", unread))
+
+			fmt.Printf("%d. %s (%s)\n", feed.ID, feed.URL, strings.Join(attrs, ", "))
 		}
 	},
 }

@@ -282,6 +282,22 @@ func TestCRUD(t *testing.T) {
 		t.Fatalf("expecting read_at to be %s, got %s", start, items[2].ReadAt)
 	}
 
+	total, err := sqlite.CountTotalByFeed(db, feeds[0].ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if total != 2 {
+		t.Fatalf("expecting total of feed %d to be 2, got %d", feeds[0].ID, total)
+	}
+
+	unread, err := sqlite.CountUnreadByFeed(db, feeds[0].ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if unread != 1 {
+		t.Fatalf("expecting unread of feed %d to be 1, got %d", feeds[0].ID, unread)
+	}
+
 	// Delete item
 	err = sqlite.DeleteItems(db, items[0].ID, items[1].ID, items[2].ID)
 	if err != nil {

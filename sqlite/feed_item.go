@@ -67,6 +67,30 @@ func CreateIgnoreItems(db cruderExecer, items ...Item) (int64, error) {
 	return r.RowsAffected()
 }
 
+// CountTotalByFeed returns the total number of items for a feed
+func CountTotalByFeed(db cruderQueryRower, feedID int64) (int64, error) {
+	var total int64
+
+	err := db.QueryRow(
+		fmt.Sprintf(`SELECT COUNT(id) FROM "%s" WHERE feed_id = ?`, itemsTable),
+		feedID,
+	).Scan(&total)
+
+	return total, err
+}
+
+// CountUnreadByFeed returns the total number of unread items for a feed
+func CountUnreadByFeed(db cruderQueryRower, feedID int64) (int64, error) {
+	var unread int64
+
+	err := db.QueryRow(
+		fmt.Sprintf(`SELECT COUNT(id) FROM "%s" WHERE feed_id = ? AND read_at IS NULL`, itemsTable),
+		feedID,
+	).Scan(&unread)
+
+	return unread, err
+}
+
 // ListItems returns a list of items from DB
 func ListItems(db cruderQueryer, filter ItemFilter) ([]*Item, error) {
 	var items []*Item
