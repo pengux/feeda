@@ -86,10 +86,13 @@ func ListFeeds(db cruderQueryer, ids ...int64) ([]*Feed, error) {
 	defer rows.Close()
 	for rows.Next() {
 		f := &Feed{}
-		err = rows.Scan(&f.ID, &f.URL, &f.Type, &f.CreatedAt, &f.SyncedAt)
+		var t string
+		err = rows.Scan(&f.ID, &f.URL, &t, &f.CreatedAt, &f.SyncedAt)
 		if err != nil {
 			return feeds, err
 		}
+
+		f.Type = feedType(t)
 
 		feeds = append(feeds, f)
 	}
