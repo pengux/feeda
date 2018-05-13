@@ -49,7 +49,7 @@ func CreateIgnoreFeeds(db cruderExecer, feeds ...Feed) error {
 
 	for _, feed := range feeds {
 		values = append(values, "(?, ?)")
-		params = append(params, feed.URL, feed.Type)
+		params = append(params, feed.URL, string(feed.Type))
 	}
 
 	_, err := db.Exec(
