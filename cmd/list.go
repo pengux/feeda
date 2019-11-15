@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pengux/feeda/sqlite"
+	"feeda/sqlite"
+
 	"github.com/spf13/cobra"
 )
 

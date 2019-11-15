@@ -5,7 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/pengux/feeda/sqlite"
+	"feeda/sqlite"
+
 	"github.com/spf13/cobra"
 )
 

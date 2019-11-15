@@ -9,7 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pengux/feeda/sqlite"
+	"feeda/sqlite"
+
 	"github.com/spf13/cobra"
 )
 

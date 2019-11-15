@@ -8,8 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"feeda/sqlite"
+
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/pengux/feeda/sqlite"
 )
 
 const (

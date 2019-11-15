@@ -1,6 +1,6 @@
 package main
 
-import "github.com/pengux/feeda/cmd"
+import "feeda/cmd"
 
 func main() {
 	cmd.Execute()

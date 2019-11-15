@@ -9,8 +9,9 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	// SQLite3 driver
+	"feeda/sqlite"
+
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/pengux/feeda/sqlite"
 	"github.com/spf13/cobra"
 )
 
