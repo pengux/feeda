@@ -1,8 +1,8 @@
 language: go
 
 go:
-  - release
-  - tip
+  - stable
+  - master
 
 script:
   - go test -v ./...
