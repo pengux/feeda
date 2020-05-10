@@ -45,7 +45,11 @@ func init() {
 		log.Fatal(err)
 	}
 
-	sqlite.EnsureTables(db)
+	err = sqlite.EnsureTables(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
 
 func TestCRUD(t *testing.T) {

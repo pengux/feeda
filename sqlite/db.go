@@ -22,7 +22,7 @@ func EnsureTables(db cruderExecer) error {
 			"id" INTEGER PRIMARY KEY AUTOINCREMENT,
 			"feed_id" INTEGER NOT NULL,
 			"guid" TEXT UNIQUE,
-			"url" TEXT,
+			"url" TEXT NOT NULL UNIQUE,
 			"title" TEXT,
 			"desc" TEXT,
 			"published_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
